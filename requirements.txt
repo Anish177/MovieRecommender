@@ -1,0 +1,5 @@
+flask
+pandas
+joblib
+math
+gunicorn
