@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Not Found</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Poppins:300,500&amp;display=swap"
+    />
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      rel="shortcut icon"
+      href="{{ url_for('static', filename='favicon.png') }}"
+      type="image/x-icon"
+    />
+    <style>
+      html {
+        box-sizing: border-box;
+      }
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        font-weight: 300;
+        font-size: 100%;
+        background-color: #ffffff;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 100%;
+        line-height: 1.5;
+        color: #000;
+        background-image: url({{url_for("static", filename= "image.jpg")}});
+      }
+
+      h1 {
+        text-align: center;
+        color: #fff; /* Set text color to white for better contrast */
+        font-size: 2em; /* Increase font size */
+        background-color: rgb(121, 126, 255); /* Set a highlighting color */
+        padding: 10px 15px; /* Add padding for better visual appearance */
+        border-radius: 5px; /* Add border-radius for rounded corners */
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Add a shadow effect */
+        margin-bottom: 20px; /* Increase bottom margin for spacing */
+        margin-top: 10px;
+        position: relative; /* Position for animation */
+        animation: fadeInDown 1s ease; /* Add an animation effect */
+      }
+
+      /* Animation keyframes */
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .main {
+        margin-right: 30vh;
+        margin-left: 30vh;
+        display: block;
+        background-color: rgba(197, 199, 255, 0.889);
+        text-align: center;
+        border-radius: 3%;
+        animation: fadeInUp 1s ease; /* Add an animation effect */
+      }
+
+      /* Animation keyframes */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      #back_btn {
+        width: 150px;
+        padding: 10px;
+        margin: 20px;
+        border-radius: 5px;
+        background-color: rgb(121, 126, 255);
+        color: #d6e5ff;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.6s ease;
+      }
+
+      #back_btn:hover {
+        background-color: rgba(87, 91, 222, 0.83);
+      }
+    </style>
+  </head>
+  <body>
+    <button id="back_btn" onclick="window.history.back()">Search again</button>
+    <div class="main">
+      <h1>Movie '{{ name }}' Not Found</h1>
+      <input type="hidden" value="{{ name }}" id="movie_name" readonly />
+      <hr />
+      <span id="suggestions"></span>
+    </div>
+    <script>
+      let all_titles = [
+          {% for movie in all_movies %}
+            "{{ movie }}",
+          {% endfor %}
+        ];
+      function goBack() {
+        window.history.back();
+      }
+
+      // Main function to check for similarity
+      function checkSimilarity() {
+        filtered_names = [];
+
+        // Get user input data
+        var input = document.getElementById("movie_name").value;
+
+        // Compare user input data with all titles
+        for (var i = 0; i < all_titles.length; i++) {
+          let simscore = similarity(input, all_titles[i]);
+          // Save to array if similarity >= 0.8
+          if (simscore >= 0.8) {
+            console.log(
+              "movie: ",
+              all_titles[i],
+              "  similarity score: ",
+              simscore
+            );
+            filtered_names.push([all_titles[i] + "<br />", simscore]);
+          }
+        }
+        // Sort according to similarity scores
+        filtered_names.sort((a, b) => b[1] - a[1]);
+
+        // Code for website UI
+        if (filtered_names.length < 1) {
+          document.getElementById("suggestions").innerHTML =
+            "Try some other movie, maybe from the suggested list? <br/><br/>";
+        } else {
+          var didyoumean = "";
+          var counter = 0;
+
+          for (key in filtered_names) {
+            didyoumean = didyoumean.concat(filtered_names[key][0]) + "<br/>";
+            counter++;
+            if (counter === 10) {
+              break;
+            }
+          }
+
+          document.getElementById("suggestions").innerHTML =
+            "<strong>Did you mean: </strong><br/><br/>" + didyoumean;
+        }
+      }
+
+      // Subfunction to check for similarity
+      function similarity(input, recc) {
+        // Find frequency of each letter for the input
+        const termfreqInput = termFreqMap(input);
+        // Find frequency of each letter for all titles
+        const termfreqRecc = termFreqMap(recc);
+
+        let dict = {};
+        // Add letters to dictionary
+        addLettersToDict(termfreqInput, dict);
+        // Add letters to dictionary
+        addLettersToDict(termfreqRecc, dict);
+
+        // Vectorise each letter in the input according to dictionary
+        const inputVector = vectorizeTermFreqMap(termfreqInput, dict);
+        // Vectorise each letter in all titles according to dictionary
+        const reccVector = vectorizeTermFreqMap(termfreqRecc, dict);
+
+        // Return cosine similarity matrix for the input title and all titles
+        return (
+          dotProduct(inputVector, reccVector) /
+          (magnitude(inputVector) * magnitude(reccVector))
+        );
+      }
+
+      // Vectorise each letter in given string
+      function termFreqMap(str) {
+        var chars = str.split("");
+        var termFreq = {};
+        chars.forEach(function (w) {
+          termFreq[w] = (termFreq[w] || 0) + 1;
+        });
+        return termFreq;
+      }
+
+      // Add letters to dictionary
+      function addLettersToDict(map, dict) {
+        for (var key in map) {
+          dict[key] = true;
+        }
+      }
+
+      // Vectorise each letter according to dictionary
+      function vectorizeTermFreqMap(map, dict) {
+        var termFreqVector = [];
+        for (var term in dict) {
+          termFreqVector.push(map[term] || 0);
+        }
+        return termFreqVector;
+      }
+
+      // Return dot product of two vectors
+      function dotProduct(vecA, vecB) {
+        var product = 0;
+        for (var i = 0; i < vecA.length; i++) {
+          product += vecA[i] * vecB[i];
+        }
+        return product;
+      }
+
+      // Return magnitude of vector
+      function magnitude(vec) {
+        var sum = 0;
+        for (var i = 0; i < vec.length; i++) {
+          sum += vec[i] * vec[i];
+        }
+        return Math.sqrt(sum);
+      }
+
+      // Call main function to check for similarity
+      checkSimilarity();
+    </script>
+  </body>
+</html>

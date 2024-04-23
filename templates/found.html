@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Recommendations for {{ search_name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Poppins:300,500&amp;display=swap"
+    />
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      rel="shortcut icon"
+      href="{{ url_for('static', filename='favicon.png') }}"
+      type="image/x-icon"
+    />
+    <style>
+      html {
+        box-sizing: border-box;
+      }
+
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        font-weight: 300;
+        background-color: #ffffff;
+        font-size: 100%;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        line-height: 1.5;
+        color: #000;
+        background-image: url({{url_for("static", filename= "image.jpg")}});
+      }
+
+      @media (min-width: 32rem) {
+        body {
+          font-size: 102.5%;
+        }
+      }
+      @media (min-width: 54rem) {
+        body {
+          font-size: 105%;
+        }
+      }
+      @media (min-width: 65rem) {
+        body {
+          font-size: 107.5%;
+        }
+      }
+      @media (min-width: 75em) {
+        body {
+          font-size: 110%;
+        }
+      }
+      @media (min-width: 91rem) {
+        body {
+          font-size: 115%;
+        }
+      }
+      @media (min-width: 115rem) {
+        body {
+          font-size: 120%;
+        }
+      }
+      @media (min-width: 130rem) {
+        body {
+          font-size: 125%;
+        }
+      }
+
+      a {
+        text-decoration: none;
+        color: #000;
+      }
+
+      ul {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+      }
+
+      figure {
+        max-width: 100%;
+        height: auto;
+        margin: 0;
+      }
+
+      .movie {
+        margin-right: 30vh;
+        margin-left: 30vh;
+        display: block;
+        background-color: rgba(197, 199, 255, 0.366);
+        text-align: center;
+        border-radius: 3%;
+        padding: 5px 15px 15px 15px;
+      }
+      #back_btn {
+        width: 20%;
+        padding: 1em;
+        margin-left: 13em;
+        margin-top: 1em;
+        border-radius: 5px;
+        color: white;
+        background-color: rgb(121, 126, 255);
+        border-style: none;
+      }
+      button {
+        margin-left: 10vh;
+        margin-top: 3vh;
+      }
+      @media screen and (max-width: 600px) {
+        .movie {
+          padding-top: 10vh;
+        }
+      }
+      table,
+      tr,
+      td,
+      th {
+        border: 1px solid rgb(121, 126, 255);
+        border-collapse: collapse;
+        transition: 0.75s;
+      }
+      td {
+        padding: 10px;
+      }
+      h3 {
+        text-align: center;
+        color: #fff; /* Set text color to white for better contrast */
+        font-size: 2em; /* Increase font size */
+        background-color: rgb(121, 126, 255); /* Set a highlighting color */
+        padding: 10px 15px; /* Add padding for better visual appearance */
+        border-radius: 5px; /* Add border-radius for rounded corners */
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Add a shadow effect */
+        margin-bottom: 20px; /* Increase bottom margin for spacing */
+        margin-top: 10px;
+        position: relative; /* Position for animation */
+        animation: fadeInDown 1s ease; /* Add an animation effect */
+      }
+
+      /* Animation keyframes */
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .movie_table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .movie_table th,
+      .movie_table td {
+        border: 1px solid rgb(121, 126, 255);
+        padding: 8px;
+        text-align: center;
+      }
+
+      .movie_table th {
+        background-color: rgb(121, 126, 255);
+        color: #fff;
+      }
+
+      .movie_table tr:nth-child(odd) {
+        background-color: rgba(163, 166, 255, 0.9);
+      }
+      .movie_table tr:nth-child(even) {
+        background-color: rgba(197, 199, 255, 0.9);
+      }
+
+      .movie_table tr:hover {
+        background-color: rgba(121, 125, 255, 0.9);
+      }
+
+      #back_btn {
+        width: 150px;
+        padding: 10px;
+        margin: 20px;
+        border-radius: 5px;
+        background-color: rgb(121, 126, 255);
+        color: #d6e5ff;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.6s ease;
+      }
+
+      #back_btn:hover {
+        background-color: rgba(87, 91, 222, 0.83);
+      }
+    </style>
+  </head>
+  <body>
+    <button id="back_btn" onclick="window.history.back()">Search again?</button>
+    <div class="movie">
+      <h3>Movie Recommendations for '{{ search_name }}'</h3>
+      <table class="movie_table">
+        <thead>
+          <tr>
+            <th>Movie Title</th>
+            <!-- <th>Release Date</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          {% for index in range(10) %}
+          <tr>
+            <td>
+              {{ movie_names[index] }}
+              <a
+                href="https://google.com/search?q={{ movie_names[index] }}"
+                target="_blank"
+                ><i class="fa fa-search"></i
+              ></a>
+            </td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <br />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  </body>
+</html>

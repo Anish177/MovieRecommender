@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Movie Recommender</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Poppins:300,500&amp;display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="shortcut icon"
+      href="{{ url_for('static', filename='favicon.png') }}"
+      type="image/x-icon"
+    />
+    <style>
+      html {
+        box-sizing: border-box;
+        height: 100vh;
+      }
+
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        font-weight: 300;
+        font-size: 100%;
+        background-color: #ffffff;
+        color: #000;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-image: url({{url_for("static", filename= "pic.jpeg")}});
+      }
+      @media (min-width: 32rem) {
+        body {
+          font-size: 102.5%;
+        }
+        .movie {
+          margin-right: 25vh;
+          margin-left: 25vh;
+        }
+      }
+      @media (min-width: 54rem) {
+        body {
+          font-size: 105%;
+        }
+      }
+      @media (min-width: 65rem) {
+        body {
+          font-size: 107.5%;
+        }
+      }
+      @media (min-width: 75em) {
+        body {
+          font-size: 110%;
+        }
+      }
+      @media (min-width: 91rem) {
+        body {
+          font-size: 115%;
+        }
+      }
+      @media (min-width: 115rem) {
+        body {
+          font-size: 120%;
+        }
+      }
+      @media (min-width: 130rem) {
+        body {
+          font-size: 125%;
+        }
+      }
+      a {
+        text-decoration: none;
+      }
+
+      .movie {
+        display: block;
+        text-align: center;
+      }
+      #movie_name {
+        width: 70%;
+        padding: 1em;
+        border-radius: 5px;
+        text-align: center;
+        border: 1px solid grey;
+      }
+      #movie_name:focus {
+        border: rgb(121, 126, 255);
+        box-shadow: 3px 3px 3px 3px rgb(121, 126, 255);
+        transition: 0.45s;
+      }
+      #submission_button {
+        width: 25%;
+        padding: 1em;
+        margin: 1em;
+        border-radius: 5px;
+        color: white;
+        background-color: rgb(121, 126, 255);
+        border-style: none;
+        cursor: pointer;
+      }
+      #submission_button:hover {
+        color: rgb(27, 27, 27);
+        background-color: rgb(162, 165, 255);
+        box-shadow: 2px 2px 2px 2px rgb(121, 126, 255);
+        transition: 0.45s;
+      }
+      @media screen and (max-width: 600px) {
+        .movie {
+          padding-top: 11vh;
+          padding-bottom: 11vh;
+        }
+      }
+      h2 {
+        text-align: center;
+        color: #fff; /* Set text color to white for better contrast */
+        font-size: 2.5em; /* Increase font size */
+        background-color: rgb(121, 126, 255); /* Set a highlighting color */
+        padding: 10px 20px; /* Add padding for better visual appearance */
+        border-radius: 5px; /* Add border-radius for rounded corners */
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Add a shadow effect */
+        margin-bottom: 20px; /* Increase bottom margin for spacing */
+        position: relative; /* Position for animation */
+        animation: fadeInDown 1s ease; /* Add an animation effect */
+      }
+
+      /* Animation keyframes */
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Movie Recommendation System</h2>
+    <div class="movie">
+      <form action="{{ url_for('main') }}" method="POST">
+        <input
+          type="text"
+          id="movie_name"
+          name="movie_name"
+          placeholder="Enter a full movie name"
+          autocorrect="off"
+          autocapitalize="off"
+          required
+        />
+        <br />
+        <input type="submit" id="submission_button" value="Submit" />
+        <input type="reset" id="submission_button" value="Reset" />
+      </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"
+    />
+    <script>
+      // console.log("All movies:", {{ all_movies }});
+      $(document).ready(function() {
+        // Load movie names from dataset
+        var movieNames = [
+          {% for movie in all_movies %}
+            "{{ movie }}",
+          {% endfor %}
+        ];
+
+        // console.log("Movie names:", movieNames); // Debug: Check if movie names are loaded
+
+      // Autocomplete functionality
+      $("#movie_name").autocomplete({
+        source: function(request, response) {
+          var results = $.ui.autocomplete.filter(movieNames, request.term);
+          response(results.slice(0, 10)); // Limiting to the first 10 suggestions
+        },
+        appendTo: "#movie_suggestions", // Appending suggestions to a specific container
+        minLength: 1 // Minimum characters to trigger autocomplete
+      }).data("ui-autocomplete")._renderItem = function(ul, item) {
+        return $("<li>").append("<div>" + item.label + "</div>").appendTo(ul);
+      };
+
+        // console.log("Autocomplete initialized"); // Debug: Check if autocomplete is initialized
+      });
+    </script>
+  </body>
+</html>
